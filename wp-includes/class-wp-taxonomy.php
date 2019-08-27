@@ -130,8 +130,7 @@ final class WP_Taxonomy {
 	/**
 	 * The callback function for sanitizing taxonomy data saved from a meta box.
 	 *
-	 * @since 5.0.0
-	 * @access public
+	 * @since 5.1.0
 	 * @var callable
 	 */
 	public $meta_box_sanitize_cb = null;
@@ -148,7 +147,7 @@ final class WP_Taxonomy {
 	 * Capabilities for this taxonomy.
 	 *
 	 * @since 4.7.0
-	 * @var array
+	 * @var object
 	 */
 	public $cap;
 
@@ -218,7 +217,7 @@ final class WP_Taxonomy {
 	 *
 	 * @since 4.7.0
 	 *
-	 * @global WP $wp WP instance.
+	 * @global WP $wp Current WordPress environment instance.
 	 *
 	 * @param string       $taxonomy    Taxonomy key, must not exceed 32 characters.
 	 * @param array|string $object_type Name of the object type for the taxonomy object.
@@ -247,9 +246,9 @@ final class WP_Taxonomy {
 		 *
 		 * @since 4.4.0
 		 *
-		 * @param array  $args        Array of arguments for registering a taxonomy.
-		 * @param string $taxonomy    Taxonomy key.
-		 * @param array  $object_type Array of names of object types for the taxonomy.
+		 * @param array    $args        Array of arguments for registering a taxonomy.
+		 * @param string   $taxonomy    Taxonomy key.
+		 * @param string[] $object_type Array of names of object types for the taxonomy.
 		 */
 		$args = apply_filters( 'register_taxonomy_args', $args, $this->name, (array) $object_type );
 
@@ -296,11 +295,14 @@ final class WP_Taxonomy {
 		}
 
 		if ( false !== $args['rewrite'] && ( is_admin() || '' != get_option( 'permalink_structure' ) ) ) {
-			$args['rewrite'] = wp_parse_args( $args['rewrite'], array(
-				'with_front'   => true,
-				'hierarchical' => false,
-				'ep_mask'      => EP_NONE,
-			) );
+			$args['rewrite'] = wp_parse_args(
+				$args['rewrite'],
+				array(
+					'with_front'   => true,
+					'hierarchical' => false,
+					'ep_mask'      => EP_NONE,
+				)
+			);
 
 			if ( empty( $args['rewrite']['slug'] ) ) {
 				$args['rewrite']['slug'] = sanitize_title_with_dashes( $this->name );
@@ -358,14 +360,14 @@ final class WP_Taxonomy {
 		// Default meta box sanitization callback depends on the value of 'meta_box_cb'.
 		if ( null === $args['meta_box_sanitize_cb'] ) {
 			switch ( $args['meta_box_cb'] ) {
-				case 'post_categories_meta_box' :
+				case 'post_categories_meta_box':
 					$args['meta_box_sanitize_cb'] = 'taxonomy_meta_box_sanitize_cb_checkboxes';
-				break;
+					break;
 
-				case 'post_tags_meta_box' :
-				default :
+				case 'post_tags_meta_box':
+				default:
 					$args['meta_box_sanitize_cb'] = 'taxonomy_meta_box_sanitize_cb_input';
-				break;
+					break;
 			}
 		}
 
@@ -374,7 +376,7 @@ final class WP_Taxonomy {
 		}
 
 		$this->labels = get_taxonomy_labels( $this );
-		$this->label = $this->labels->name;
+		$this->label  = $this->labels->name;
 	}
 
 	/**
